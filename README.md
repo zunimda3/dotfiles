@@ -7,26 +7,75 @@ Managed with GNU Stow.
 - `nvim` -> `~/.config/nvim`
 - `tmux` -> `~/.tmux.conf`
 
-## Source-first install
+## Recommended flow for 42
 
-This repo is set up for machines where you can build from source in your home directory but should not install distro packages.
-
-This is specifically meant for environments like a school computer where you do not have `sudo` access.
-
-The intended flow is:
+For a 42 school computer, use the portable bootstrap first:
 
 ```bash
 git clone https://github.com/zunimda3/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-./bootstrap-source-tools.sh
+./check-42-env.sh
+./bootstrap-portable-tools.sh
+export PATH="$HOME/.local/bin:$PATH"
 ./install.sh
 ```
 
-The bootstrap script installs tools under `~/.local`, not `/usr` or `/usr/local`, and it does not require `sudo`.
+This is designed for a machine where you do not have `sudo`.
 
-## Build prerequisites
+## Why this flow
 
-These are still needed on the machine before the source builds can work:
+42 machines are programming-focused, so some low-level tools are usually already present. Based on 42-specific community docs and the normal 42 curriculum:
+
+- Very likely present:
+  - `git`
+  - `curl`
+  - `tar`
+  - `unzip`
+  - `perl`
+  - `make`
+  - `cc` or `clang`
+  - `yacc` or `bison`
+- Mixed or likely missing:
+  - `cmake`
+  - `pkg-config`
+  - `autoconf`
+  - `automake`
+  - `ripgrep`
+  - `node`
+  - `npm`
+  - `lazygit`
+- Machine-specific:
+  - `libevent`
+  - `ncurses`
+
+The likely-present items are consistent with 42's C-focused workflow and community notes that school machines already ship a compiler toolchain, while missing tools are often installed by students with 42Homebrew or a similar user-space setup.
+
+## Bootstraps
+
+### `bootstrap-portable-tools.sh`
+
+This is the recommended path on a restricted machine.
+
+It avoids local source builds where possible:
+
+- installs GNU Stow from the official GNU release tarball into `~/.local`
+- installs tmux from the current `tmux-builds` release into `~/.local/bin`
+- installs Neovim from the current official prebuilt release archive into `~/.local`
+
+This reduces the prerequisite set substantially. In practice it mainly needs:
+
+- `git`
+- `curl`
+- `tar`
+- `unzip`
+- `perl`
+- `make`
+
+### `bootstrap-source-tools.sh`
+
+This is the fallback if you explicitly want to build everything from GitHub source.
+
+It installs under `~/.local`, not `/usr` or `/usr/local`, and does not require `sudo`. But it does require a fuller toolchain:
 
 - `git`
 - `curl`
@@ -41,28 +90,7 @@ These are still needed on the machine before the source builds can work:
 - `automake`
 - `bison` or `yacc`
 
-This is based on the current official build docs for Stow, tmux, and Neovim.
-
-If your school machine does not already provide that toolchain, building from GitHub source alone will not be enough, because this repo does not use `sudo` and does not install system libraries globally.
-
-## What gets built locally
-
-`./bootstrap-source-tools.sh` clones and installs these into `~/.local`:
-
-- GNU Stow from `https://github.com/aspiers/stow`
-- tmux from `https://github.com/tmux/tmux`
-- Neovim from `https://github.com/neovim/neovim`
-
-### Important tmux note
-
-tmux also depends on:
-
-- `libevent`
-- `ncurses`
-
-The official tmux install docs say those libraries must exist, and if they are not available as packages they need to be built separately from source in user space.
-
-I did not automate local `libevent` and `ncurses` builds here because that is the most machine-specific part of the setup. If tmux fails to configure on the school machine, that will be the first thing to fix.
+If the school machine does not already provide that toolchain, the source-build path will fail.
 
 ## PATH
 
@@ -143,9 +171,21 @@ Configured tmux plugins:
 - `~/.tmux/resurrect` and `~/.tmux/plugins` are intentionally not stowed. They are machine state and local installs, not portable config.
 - `install.sh` only applies the symlinks. It does not build toolchains.
 - Nothing in this repo requires `sudo`; all intended installs go under `~/.local`.
+- If `node`, `npm`, or `ripgrep` are missing on the school machine, Neovim will still start, but some plugins and LSP workflows will be reduced until you install those tools.
+
+## 42-specific fallback
+
+If the school machine is missing too many tools even for the portable bootstrap, the most realistic fallback is a user-space Homebrew setup used by many 42 students:
+
+- `https://github.com/omimouni/42homebrew`
+
+That is not the default path in this repo, but it is the next thing I would recommend on a 42 machine if the built-in environment is too minimal.
 
 ## Sources
 
 - GNU Stow install notes: https://raw.githubusercontent.com/aspiers/stow/master/INSTALL.md
+- tmux static builds releases: https://github.com/tmux/tmux-builds/releases
 - tmux install wiki: https://github.com/tmux/tmux/wiki/Installing
-- Neovim README / build notes: https://github.com/neovim/neovim
+- Neovim releases: https://github.com/neovim/neovim/releases
+- 42 community setup note for no-admin machines: https://sebastienwae.github.io/debugging-42/
+- 21/42 community FAQ referencing local Homebrew on school Macs: https://github.com/daniiomir/faq_for_school_21
