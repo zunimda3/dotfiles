@@ -7,31 +7,76 @@ Managed with GNU Stow.
 - `nvim` -> `~/.config/nvim`
 - `tmux` -> `~/.tmux.conf`
 
-## Install on a new machine
+## Source-first install
 
-1. Install base tools:
+This repo is set up for machines where you can build from source in your home directory but should not install distro packages.
+
+The intended flow is:
 
 ```bash
-# Arch
-sudo pacman -S --needed stow neovim tmux git ripgrep fd nodejs npm python gcc make unzip curl tar
-
-# Debian/Ubuntu
-sudo apt install stow neovim tmux git ripgrep fd-find nodejs npm python3 build-essential unzip curl tar
+git clone https://github.com/zunimda3/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+./bootstrap-source-tools.sh
+./install.sh
 ```
 
-2. Clone this repo to `~/dotfiles`.
+The bootstrap script installs tools under `~/.local`, not `/usr` or `/usr/local`.
 
-3. Stow the packages:
+## Build prerequisites
+
+These are still needed on the machine before the source builds can work:
+
+- `git`
+- `curl`
+- `tar`
+- `unzip`
+- `perl`
+- `make`
+- a C compiler such as `gcc` or `clang`
+- `cmake`
+- `pkg-config`
+- `autoconf`
+- `automake`
+- `bison` or `yacc`
+
+This is based on the current official build docs for Stow, tmux, and Neovim.
+
+If your school machine does not provide that toolchain already, building from GitHub source alone will not be enough.
+
+## What gets built locally
+
+`./bootstrap-source-tools.sh` clones and installs these into `~/.local`:
+
+- GNU Stow from `https://github.com/aspiers/stow`
+- tmux from `https://github.com/tmux/tmux`
+- Neovim from `https://github.com/neovim/neovim`
+
+### Important tmux note
+
+tmux also depends on:
+
+- `libevent`
+- `ncurses`
+
+The official tmux install docs say those libraries must exist, and if they are not available as packages they need to be built separately from source.
+
+I did not automate local `libevent` and `ncurses` builds here because that is the most machine-specific part of the setup. If tmux fails to configure on the school machine, that will be the first thing to fix.
+
+## PATH
+
+Add this to your shell startup if `~/.local/bin` is not already on `PATH`:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+## Apply the dotfiles
+
+After `stow` is available in `PATH`:
 
 ```bash
 cd ~/dotfiles
-stow --target="$HOME" nvim tmux
-```
-
-Or run:
-
-```bash
-~/dotfiles/install.sh
+./install.sh
 ```
 
 ## Extra setup required by this config
@@ -82,7 +127,7 @@ Formatters and linters configured through Mason:
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
 
-- Start tmux, then press `prefix` + `I` to install tmux plugins.
+- Start tmux, then press `Alt-a` followed by `I` to install tmux plugins.
 
 Configured tmux plugins:
 
@@ -93,4 +138,11 @@ Configured tmux plugins:
 
 ## Notes
 
-- `~/.tmux/resurrect` and `~/.tmux/plugins` were intentionally not stowed. They are machine state and local installs, not portable config.
+- `~/.tmux/resurrect` and `~/.tmux/plugins` are intentionally not stowed. They are machine state and local installs, not portable config.
+- `install.sh` only applies the symlinks. It does not build toolchains.
+
+## Sources
+
+- GNU Stow install notes: https://raw.githubusercontent.com/aspiers/stow/master/INSTALL.md
+- tmux install wiki: https://github.com/tmux/tmux/wiki/Installing
+- Neovim README / build notes: https://github.com/neovim/neovim
