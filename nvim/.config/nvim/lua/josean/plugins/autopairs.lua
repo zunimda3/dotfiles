@@ -25,7 +25,13 @@ return {
     local cmp = require("cmp")
 
     -- make autopairs and completion work together
-    cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+    cmp.event:on(
+      "confirm_done",
+      cmp_autopairs.on_confirm_done({
+        filetypes = {
+          python = false,
+        },
+      })
+    )
   end,
 }
-
