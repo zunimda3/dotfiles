@@ -23,7 +23,7 @@ return {
   {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    build = "cd app && npm install",
+    build = "cd app && npm install --no-save --package-lock=false --no-audit --no-fund socket.io@4.8.3 socket.io-client@4.8.3 log4js@6.9.1",
     init = function()
       vim.g.mkdp_filetypes = { "markdown" }
     end,
