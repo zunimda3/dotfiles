@@ -1,3 +1,3 @@
-require("josean.core")
-require("josean.lazy")
-require("josean.lsp")
+require("naim.core")
+require("naim.lazy")
+require("current-theme")
