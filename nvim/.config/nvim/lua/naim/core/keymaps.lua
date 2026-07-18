@@ -22,6 +22,10 @@ vim.keymap.set("v", "<", "<gv")
 vim.keymap.set("x", "<leader>p", [["_dP]])
 vim.keymap.set("v", "p", '"_dP', opts)
 
+-- Change text without copying it to the clipboard
+vim.keymap.set({"n", "v"}, "c", '"_c', opts)
+vim.keymap.set("n", "C", '"_C', opts)
+
 vim.keymap.set("n", "<C-c>", ":nohl<CR>", { desc = "clear search hl", silent = true })
 
 vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
@@ -45,14 +49,13 @@ vim.keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "next tab" })
 vim.keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "previous tab" })
 vim.keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "new tab (current buf)" })
 
-vim.keymap.set("n", "<leader>sv", "<C-w>v", {desc = "split vertical"} )
-vim.keymap.set("n", "<leader>sh", "<C-w>s", {desc = "split horizontally"} )
-vim.keymap.set("n", "<leader>se", "<C-w>=", {desc = "split equal size"} )
-vim.keymap.set("n", "<leader>sx", "<cmd>close<CR>", {desc = "close current split"} )
+vim.keymap.set("n", "<leader>sv", "<C-w>v", { desc = "split vertical" })
+vim.keymap.set("n", "<leader>sh", "<C-w>s", { desc = "split horizontally" })
+vim.keymap.set("n", "<leader>se", "<C-w>=", { desc = "split equal size" })
+vim.keymap.set("n", "<leader>sx", "<cmd>close<CR>", { desc = "close current split" })
 
 vim.keymap.set("n", "<leader>fp", function()
     local filePath = vim.fn.expand("%:~") -- Gets the file path relative to the home dir
-    vim.fn.setreg("+", filePath) -- Copy file path to clipboard reg
+    vim.fn.setreg("+", filePath)          -- Copy file path to clipboard reg
     print("File path copied")
 end, { desc = "Copy file path to clipboard" })
-

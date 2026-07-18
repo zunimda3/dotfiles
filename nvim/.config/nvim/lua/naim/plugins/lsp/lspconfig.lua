@@ -100,7 +100,7 @@ return {
                 signs = { text = signs },
                 virtual_text =
                 {
-                    severity = { min = vim.diagnostic.severity.WARN }
+                    severity = { min = vim.diagnostic.severity.ERROR }
                 },
                 underline = true,  -- Always on
                 update_in_insert = false,

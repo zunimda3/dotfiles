@@ -203,7 +203,16 @@ return {
         require("luasnip.loaders.from_vscode").lazy_load()
 
         cmp.setup.cmdline(":", {
-            mapping = cmp.mapping.preset.cmdline(),
+            mapping = cmp.mapping.preset.cmdline({
+                -- Keep Tab available for its normal command-line behavior.
+                -- The cmdline preset otherwise uses these keys for completion.
+                ['<Tab>'] = cmp.mapping(function(fallback)
+                    fallback()
+                end, { 'c' }),
+                ['<S-Tab>'] = cmp.mapping(function(fallback)
+                    fallback()
+                end, { 'c' }),
+            }),
             sources = cmp.config.sources({
                 { name = "path" },
                 { name = "cmdline" },
@@ -297,37 +306,38 @@ return {
                 end, { 'i', 's' }),
 
 
-                ['<S-Tab>'] = cmp.mapping(function(fallback)
-                    if cmp.visible() then
-                        cmp.select_prev_item()
-                    elseif has_luasnip and in_snippet() and luasnip.jumpable(-1) then
-                        luasnip.jump(-1)
-                    elseif in_leading_indent() then
-                        smart_bs(true) -- true means to dedent
-                    elseif in_whitespace() then
-                        smart_bs()
-                    else
-                        fallback()
-                    end
-                end, { 'i', 's' }),
+                -- Tab completion/snippet mappings disabled for now.
+                -- ['<S-Tab>'] = cmp.mapping(function(fallback)
+                --     if cmp.visible() then
+                --         cmp.select_prev_item()
+                --     elseif has_luasnip and in_snippet() and luasnip.jumpable(-1) then
+                --         luasnip.jump(-1)
+                --     elseif in_leading_indent() then
+                --         smart_bs(true) -- true means to dedent
+                --     elseif in_whitespace() then
+                --         smart_bs()
+                --     else
+                --         fallback()
+                --     end
+                -- end, { 'i', 's' }),
 
-                ['<Tab>'] = cmp.mapping(function(_fallback)
-                    if cmp.visible() then
-                        -- if there is only one completion candidate then use it.
-                        local entries = cmp.get_entries()
-                        if #entries == 1 then
-                            confirm(entries[1])
-                        else
-                            cmp.select_next_item()
-                        end
-                    elseif has_luasnip and luasnip.expand_or_locally_jumpable() then
-                        luasnip.expand_or_jump()
-                    elseif in_whitespace() then
-                        smart_tab()
-                    else
-                        cmp.complete()
-                    end
-                end, { 'i', 's' }),
+                -- ['<Tab>'] = cmp.mapping(function(_fallback)
+                --     if cmp.visible() then
+                --         -- if there is only one completion candidate then use it.
+                --         local entries = cmp.get_entries()
+                --         if #entries == 1 then
+                --             confirm(entries[1])
+                --         else
+                --             cmp.select_next_item()
+                --         end
+                --     elseif has_luasnip and luasnip.expand_or_locally_jumpable() then
+                --         luasnip.expand_or_jump()
+                --     elseif in_whitespace() then
+                --         smart_tab()
+                --     else
+                --         cmp.complete()
+                --     end
+                -- end, { 'i', 's' }),
             }),
             -- setup lspkind for vscode pictograms in autocompletion dropdown menu
             formatting = {
