@@ -25,5 +25,4 @@ alias ls="eza --color=always --long --git --no-filesize --icons=always --no-time
 unset LS_COLORS
 
 # Zoxide (better cd)
-eval "$(zoxide init zsh)"
-alias z="cd"
+eval "$(zoxide init --cmd cd zsh)"
