@@ -58,7 +58,7 @@
 
     "modules-left"   : ["group/left-hidden-top", "group/left"],
     "modules-center" : ["clock"],
-    "modules-right"  : [ "group/right",  "group/right-hidden-top"],
+    "modules-right"  : [ "group/right", "custom/shutdown", "group/right-hidden-top"],
 
     "include": [ "~/.config/waybar/modules.jsonc" ]
 }
