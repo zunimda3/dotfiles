@@ -100,16 +100,70 @@ hl.env("HYPRCURSOR_SIZE", "24")
 ---- LOOK AND FEEL ----
 -----------------------
 
+local defaultActiveBorder = {
+    colors = {"rgba(33ccffee)", "rgba(00ff99ee)"},
+    angle = 45,
+}
+
+local function loadMatugenActiveBorder()
+    local home = os.getenv("HOME")
+    if not home then
+        return defaultActiveBorder
+    end
+
+    local paletteFile = io.open(
+        home .. "/.local/state/matugen-palette.json",
+        "r"
+    )
+
+    if not paletteFile then
+        return defaultActiveBorder
+    end
+
+    local palette = paletteFile:read("*a")
+    paletteFile:close()
+
+    local schemaVersion = tonumber(
+        palette:match('"schema_version"%s*:%s*(%d+)')
+    )
+    if schemaVersion ~= 1 then
+        return defaultActiveBorder
+    end
+
+    local function findColor(name)
+        return palette:match(
+            '"' .. name .. '"%s*:%s*"(#%x%x%x%x%x%x)"'
+        )
+    end
+
+    local primary = findColor("primary")
+    local tertiary = findColor("tertiary")
+
+    if not primary or not tertiary then
+        return defaultActiveBorder
+    end
+
+    return {
+        colors = {
+            "rgba(" .. primary:sub(2) .. "ee)",
+            "rgba(" .. tertiary:sub(2) .. "ee)",
+        },
+        angle = 45,
+    }
+end
+
+local activeBorder = loadMatugenActiveBorder()
+
 -- Refer to https://wiki.hypr.land/Configuring/Basics/Variables/
 hl.config({
     general = {
         gaps_in  = 5,
         gaps_out = 15,
 
-        border_size = 2,
+        border_size = 3,
 
         col = {
-            active_border   = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
+            active_border   = activeBorder,
             inactive_border = "rgba(595959aa)",
         },
 

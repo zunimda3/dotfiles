@@ -1,4 +1,4 @@
-@import "colors/colors.css";
+@import "colors/colors.matugen.css";
 
 * {
     font-family: 'CaskaydiaCove Nerd Font Propo';
@@ -14,7 +14,7 @@
     font-weight: 700;
     background: transparent;
     font-size: 14px;
-    color: @fg;
+    color: @foreground;
 }
 
 /* global paddings */
@@ -66,7 +66,7 @@
 #left-hidden-top {
     padding: 2px 10px;
     border-radius: 15px;
-    background: @module-bg;
+    background: @panel;
 }
 
 #right-hidden-top,
@@ -79,14 +79,14 @@
 }
 
 #clock {
-    background: @module-bg;
+    background: @panel;
     padding: 3px 20px;
     border-radius: 15px;
 }
 
 #custom-shutdown {
-    background: @module-bg;
-    color: @red;
+    background: @panel;
+    color: @danger;
     padding: 3px 10px;
     margin-right: 8px;
     border-radius: 15px;
@@ -108,28 +108,28 @@
 #temperature.critical, 
 #network.disconnected,
 #power-profiles-daemon.performance {
-	color: @red;
+	color: @danger;
 }
 
 #cpu.warning,
 #memory.warning, 
 #battery.warning,
 #temperature.warning {
-	color: @yellow;
+	color: @warning;
     background: unset;
 }
 
 #power-profiles-daemon.power-saver {
-    color: @green;
+    color: @success;
 }
 
 #custom-start,
 #custom-ctlcenter {
-    color: @blue;
+    color: @accent;
 }
 
 #workspaces button {
-    color: @workspace-fg;
+    color: @foreground-variant;
     font-size: 14px;
     border-radius: 100%;
     padding: 2px 5px;
@@ -137,7 +137,7 @@
 }
 /* 
 #workspaces button.empty:not(.active) {
-    color: @inactive;
+    color: @muted;
 } */
 
 #workspaces button:hover {
@@ -149,7 +149,7 @@
 #custom-workspace3,
 #custom-workspace4,
 #custom-workspace5 {
-    color: @workspace-fg;
+    color: @foreground-variant;
     font-size: 14px;
     padding: 2px 5px;
     margin: 0 3px;
@@ -160,22 +160,22 @@
 #custom-workspace3.active,
 #custom-workspace4.active,
 #custom-workspace5.active {
-    color: @blue;
+    color: @accent;
 }
 
 #mpris.paused {
-    color: @inactive;
+    color: @muted;
 }
 
 /* ---<==== Misc ====>--- */
 tooltip {
     border-radius: 15px;
-    background: @tooltip-bg;
+    background: @panel-elevated;
 }
 
 tooltip label {
     padding: 3px 10px;
-    color: @fg;
+    color: @foreground;
 	font-weight: 700;
 }
 
@@ -188,8 +188,8 @@ tooltip label {
 menu {
     border-radius: 10px;
     font-weight: 700;
-    color: @fg;
-    background: @tooltip-bg;
+    color: @foreground;
+    background: @panel-elevated;
 }
 
 menu > * {
@@ -198,7 +198,7 @@ menu > * {
 
 menu > *:hover {
     border-radius: 10px;
-    background-color: @highlight;
+    background-color: @hover;
 }
 
 /* Sliders */
@@ -212,11 +212,11 @@ trough {
     min-width: 50px;
     min-height: 5px;
     border-radius: 8px;
-    background: @inactive;
+    background: @subtle;
 }
 
 trough highlight {
     border-radius: 8px;
-    background-color: @fg;
+    background-color: @foreground;
     background-image: none; /* Some gtk themes set an svg for background. */
 }

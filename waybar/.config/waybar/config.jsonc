@@ -5,6 +5,7 @@
     // scaled displays such as the laptop panel (2560px at 1.60 scale).
     "height": 24,
     "margin": "15 15 0 15",
+    "reload_style_on_change": true,
 
     "group/left" : {
         "orientation": "horizontal",

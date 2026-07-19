@@ -205,11 +205,11 @@
             "weeks-pos": "right",
             "mode-mon-col": 3,
             "format": {
-                "months":   "<span color='#acb0d0'><b>{}</b></span>",
-                "weeks":    "<span color='#7aa2f7'><b>W{}</b></span>",
-                "weekdays": "<span color='#e0af68'><b>{}</b></span>",
-                "days":     "<span color='#acb0d0'><b>{}</b></span>",
-                "today":    "<span color='#41a6b5'><b><u>{}</u></b></span>"
+                "months":   "<span><b>{}</b></span>",
+                "weeks":    "<span><b>W{}</b></span>",
+                "weekdays": "<span><b>{}</b></span>",
+                "days":     "<span><b>{}</b></span>",
+                "today":    "<span><b><u>{}</u></b></span>"
             }
         }
     },
