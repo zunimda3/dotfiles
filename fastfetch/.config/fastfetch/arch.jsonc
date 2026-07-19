@@ -28,7 +28,7 @@
             "keyWidth": 10
         },
         "break",
-        { "type": "os", "key": " ", "keyColor": "33" },
+        { "type": "os", "format": "{name} {version-id} {arch}", "key": " ", "keyColor": "33" },
         { "type": "kernel", "key": " ", "keyColor": "33" },
         { "type": "packages", "format": "{} (pacman)", "key": " ", "keyColor": "33" },
         { "type": "shell", "key": " ", "keyColor": "33" },

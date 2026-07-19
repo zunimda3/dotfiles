@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+socket="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+
+refresh_workspaces() {
+    for signal in 8 9 10 11 12; do
+        pkill -RTMIN+"$signal" -x waybar
+    done
+}
+
+# Socket 2 emits workspace and focused-monitor events for every workspace
+# change, including changes initiated by keybinds and gestures.
+socat -U - UNIX-CONNECT:"$socket" | while IFS= read -r event; do
+    case "$event" in
+        workspace\>\>*|workspacev2\>\>*|focusedmon\>\>*)
+            refresh_workspaces
+            ;;
+    esac
+done

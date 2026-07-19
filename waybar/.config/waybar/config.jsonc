@@ -1,14 +1,15 @@
 {
     "layer": "top",
     "position": "top",
-    "width": 2550,
-    "height": 32,
-    "margin": "10 0",
+    // Let Waybar use each output's logical width. A fixed value overflows on
+    // scaled displays such as the laptop panel (2560px at 1.60 scale).
+    "height": 24,
+    "margin": "15 15 0 15",
 
     "group/left" : {
         "orientation": "horizontal",
         "modules" : [
-            "hyprland/workspaces", 
+            "group/workspaces",
 //            "niri/workspaces",
             "mpris"
         ]

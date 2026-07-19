@@ -1,15 +1,54 @@
 {
-    "hyprland/workspaces": {
-        "format": "{icon}",
-        "on-scroll-down": "hyprctl dispatch \"hl.dsp.focus({workspace = 'e+1'})\"",
-        "on-scroll-up":   "hyprctl dispatch \"hl.dsp.focus({workspace = 'e-1'})\"",
-        "persistent-workspaces": { "*": 5 },
-        "cursor": true,
-        "format-icons": {
-            "active": "󰮯",
-            "persistent": "",
-            "empty": ""
-         }
+    "group/workspaces": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/workspace1",
+            "custom/workspace2",
+            "custom/workspace3",
+            "custom/workspace4",
+            "custom/workspace5"
+        ]
+    },
+
+    "custom/workspace1": {
+        "exec": "~/.local/bin/waybar-workspace 1",
+        "return-type": "json",
+        "signal": 8,
+        "on-click": "hyprctl dispatch \"hl.dsp.focus({workspace = 1})\"",
+        "tooltip": false,
+        "cursor": true
+    },
+    "custom/workspace2": {
+        "exec": "~/.local/bin/waybar-workspace 2",
+        "return-type": "json",
+        "signal": 9,
+        "on-click": "hyprctl dispatch \"hl.dsp.focus({workspace = 2})\"",
+        "tooltip": false,
+        "cursor": true
+    },
+    "custom/workspace3": {
+        "exec": "~/.local/bin/waybar-workspace 3",
+        "return-type": "json",
+        "signal": 10,
+        "on-click": "hyprctl dispatch \"hl.dsp.focus({workspace = 3})\"",
+        "tooltip": false,
+        "cursor": true
+    },
+    "custom/workspace4": {
+        "exec": "~/.local/bin/waybar-workspace 4",
+        "return-type": "json",
+        "signal": 11,
+        "on-click": "hyprctl dispatch \"hl.dsp.focus({workspace = 4})\"",
+        "tooltip": false,
+        "cursor": true
+    },
+    "custom/workspace5": {
+        "exec": "~/.local/bin/waybar-workspace 5",
+        "return-type": "json",
+        "signal": 12,
+        "on-click": "hyprctl dispatch \"hl.dsp.focus({workspace = 5})\"",
+        "tooltip": false,
+        "cursor": true
     },
 
     "niri/workspaces": {

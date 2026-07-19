@@ -136,6 +136,25 @@
     background: transparent;
 }
 
+#custom-workspace1,
+#custom-workspace2,
+#custom-workspace3,
+#custom-workspace4,
+#custom-workspace5 {
+    color: @workspace-fg;
+    font-size: 14px;
+    padding: 2px 5px;
+    margin: 0 3px;
+}
+
+#custom-workspace1.active,
+#custom-workspace2.active,
+#custom-workspace3.active,
+#custom-workspace4.active,
+#custom-workspace5.active {
+    color: @blue;
+}
+
 #mpris.paused {
     color: @inactive;
 }

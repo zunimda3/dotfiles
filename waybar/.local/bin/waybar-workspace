@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+workspace="$1"
+active_workspace="$(hyprctl -j activeworkspace 2>/dev/null | jq -r '.id // empty')"
+
+if [ "$active_workspace" = "$workspace" ]; then
+    printf '%s\n' '{"text":"󰮯","class":"active"}'
+else
+    printf '%s\n' '{"text":"","class":"inactive"}'
+fi
