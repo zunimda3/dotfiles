@@ -38,7 +38,7 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("sleep 2 && waybar")
     hl.exec_cmd("~/.local/bin/waybar-workspace-watch")
     hl.exec_cmd("swaync")
-    hl.exec_cmd("waypaper --random")
+    hl.exec_cmd("waypaper --restore --no-post-command")
 end)
 ---------------------
 ---- MY PROGRAMS ----
