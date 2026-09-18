@@ -2,6 +2,7 @@
 export PATH="$HOME/.fzf/bin:$PATH"
 
 # Starship
+export PATH="$HOME/.local/bin:$PATH"
 eval "$(starship init zsh)"
 
 # Fastfetch
@@ -12,8 +13,6 @@ ff
 if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
 fi
-
-export PATH="$HOME/.local/bin:$PATH"
 
 export USER="naamir"
 export EMAIL="naamir@42kl.edu.my"
@@ -36,3 +35,6 @@ unset LS_COLORS
 
 # Zoxide
 eval "$(zoxide init --cmd cd zsh)"
+
+# Ssh into zvault
+alias zvault="ssh zvault"
