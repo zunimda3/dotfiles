@@ -6,34 +6,83 @@ set -o pipefail
 
 STOW_TARGET="$HOME"
 
-echo "============================="
-echo "Starting dotfiles installation..."
-echo "============================="
+# Make user-local binaries available to this script.
+export PATH="$HOME/.local/bin:$HOME/.fzf/bin:$PATH"
 
-echo "============================="
+# Detect operating system.
 source /etc/os-release
-echo "Detected OS: $ID"
-echo "============================="
 
 echo "============================="
-echo "check dotfiles dir"
-DOTFILES_DIR="$HOME/.dotfiles"
+echo "Starting dotfiles bootstrap"
+echo "Detected OS: $ID"
+
+if [ "$ID" != "ubuntu" ]; then
+    echo "Unsupported OS: $ID"
+    exit 1
+fi
+
+# Find the directory containing this script.
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 echo "Dotfiles DIR: $DOTFILES_DIR"
 echo "============================="
 
-if [ -d "$DOTFILES_DIR" ]; then
-  echo "Dotfiles directory already exists: $DOTFILES_DIR"
-  exit 1
+
+# ============================================================
+# Bootstrap dependencies
+# ============================================================
+
+echo "============================="
+echo "Checking bootstrap dependencies"
+
+BOOTSTRAP_PACKAGES=(
+    git
+    curl
+    ca-certificates
+    software-properties-common
+    zsh
+    stow
+)
+
+sudo apt update
+sudo apt install -y "${BOOTSTRAP_PACKAGES[@]}"
+
+echo "============================="
+
+
+# ============================================================
+# ZSH
+# ============================================================
+
+echo "============================="
+echo "Setting up ZSH"
+
+ZSH_PATH="$(command -v zsh)"
+
+if [ -z "$ZSH_PATH" ]; then
+    echo "Failed to find zsh"
+    exit 1
+fi
+
+CURRENT_SHELL="$(getent passwd "$USER" | cut -d: -f7)"
+
+if [ "$CURRENT_SHELL" != "$ZSH_PATH" ]; then
+    echo "Changing login shell to zsh"
+    chsh -s "$ZSH_PATH"
+else
+    echo "Login shell already uses zsh"
 fi
 
 echo "============================="
-echo "clone from repo"
-git clone --branch asahi https://github.com/zunimda3/dotfiles.git "$DOTFILES_DIR"
-ls "$DOTFILES_DIR"
-echo "============================="
+
+
+# ============================================================
+# Stow packages
+# ============================================================
 
 echo "============================="
-echo "check stow package"
+echo "Stow packages"
+
 PACKAGES=(
     eza
     fastfetch
@@ -44,23 +93,16 @@ PACKAGES=(
     tmux
     waybar
     zsh
-    )
-for package in "${PACKAGES[@]}"; do
-    echo "Package: $package"
-done
-if ! command -v stow > /dev/null; then
-  echo "GNU Stow is not installed"
-  if [ "$ID" = "ubuntu" ]; then
-    sudo apt install stow
-    if command -v stow > /dev/null; then
-      echo "GNU Stow installed"
-    fi
-  else
-    echo "Unsupported OS: $ID"
-    exit 1
-  fi
-fi
+)
+
+printf '  %s\n' "${PACKAGES[@]}"
+
 echo "============================="
+
+
+# ============================================================
+# Stow function
+# ============================================================
 
 stow_package() {
     local package="$1"
@@ -68,109 +110,206 @@ stow_package() {
     printf "%s" "Stowing $package: "
 
     if output=$(stow -n -v -d "$DOTFILES_DIR" -t "$STOW_TARGET" "$package" 2>&1); then
-      stow -d "$DOTFILES_DIR" -t "$STOW_TARGET" "$package"
-      printf "%s\n" "COMPLETED"
+
+        stow -d "$DOTFILES_DIR" -t "$STOW_TARGET" "$package"
+
+        printf "%s\n" "COMPLETED"
 
     else
-      conflicts=$(
+
+        conflicts=$(
             printf '%s\n' "$output" |
             grep "existing target" |
             sed 's/.*: //' || true
-      )
+        )
 
-      if [ -z "$conflicts" ]; then
-          echo "Stow failed for an unexpected reason: "
-          echo "$output"
-          exit 1
-      fi
+        if [ -z "$conflicts" ]; then
+            echo
+            echo "Stow failed for an unexpected reason:"
+            echo "$output"
+            return 1
+        fi
 
-      echo "Conflicts Detected"
-      printf '%s\n' "$conflicts"
+        echo
+        echo "Conflicts Detected:"
+        printf '  %s\n' "$conflicts"
 
-      read -r -p "Replace conflicting files? [y/N] " answer
+        read -r -p "Replace conflicting files? [y/N] " answer
 
-      if [ "$answer" = "y" ]; then
-        echo "User chose to replace"
+        case "$answer" in
+            y|Y|yes|YES)
+                echo "User chose to replace"
 
-        BACKUP_SUFFIX="$(date +"%Y%m%d-%H%M%S")"
+                local backup_suffix
+                backup_suffix="$(date +"%Y%m%d-%H%M%S")"
 
-        while read -r conflict; do
-          conflict_path="$STOW_TARGET/$conflict"
-          echo "Backing up: $conflict_path"
-          mv "$conflict_path" "$conflict_path.backup-$BACKUP_SUFFIX"
-        done <<< "$conflicts"
+                while read -r conflict; do
+                    local conflict_path
+                    conflict_path="$STOW_TARGET/$conflict"
 
-        stow -d "$DOTFILES_DIR" -t "$STOW_TARGET" "$package"
-        printf "%s\n" "Stowing $package: COMPLETED"
+                    echo "Backing up: $conflict_path"
 
-      else
-        echo "User chose to not replace"
-        exit 1
-      fi
+                    mv \
+                        "$conflict_path" \
+                        "$conflict_path.backup-$backup_suffix"
+                done <<< "$conflicts"
+
+                stow -d "$DOTFILES_DIR" -t "$STOW_TARGET" "$package"
+
+                printf "%s\n" "Stowing $package: COMPLETED"
+                ;;
+
+            *)
+                echo "User chose to not replace"
+                return 1
+                ;;
+        esac
     fi
 }
+
+
+# ============================================================
+# Dependency installation
+# ============================================================
 
 install_dependencies() {
     echo "============================="
     echo "Checking dependencies"
-    echo "============================="
 
+    # --------------------------------------------------------
     # Starship
-    if ! command -v starship > /dev/null; then
+    # --------------------------------------------------------
+
+    if ! command -v starship >/dev/null; then
         echo "Installing starship..."
-        curl -sS https://starship.rs/install.sh | sh -s -- -y
+
+        mkdir -p "$HOME/.local/bin"
+
+        curl -sS https://starship.rs/install.sh |
+            sh -s -- -y -b "$HOME/.local/bin"
+    else
+        echo "Starship: already installed"
     fi
 
+
+    # --------------------------------------------------------
     # fzf
-    if [ ! -d "$HOME/.fzf" ]; then
-        git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
+    # --------------------------------------------------------
+
+    local required_fzf_version="0.53.0"
+    local current_fzf_version=""
+
+    if command -v fzf >/dev/null; then
+        current_fzf_version="$(fzf --version | awk '{print $1}')"
+        echo "fzf: $current_fzf_version"
     fi
 
-    "$HOME/.fzf/install" --bin
+    if [ -z "$current_fzf_version" ] ||
+       [ "$(printf '%s\n' "$required_fzf_version" "$current_fzf_version" | sort -V | head -n1)" != "$required_fzf_version" ]; then
 
-    export PATH="$HOME/.fzf/bin:$PATH"
+        echo "Installing/updating fzf..."
 
-    # zoxide
-    if ! command -v zoxide > /dev/null; then
+        if [ ! -d "$HOME/.fzf" ]; then
+            git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
+        elif [ -d "$HOME/.fzf/.git" ]; then
+            git -C "$HOME/.fzf" pull --ff-only
+        else
+            echo "$HOME/.fzf exists but is not an fzf git repository"
+            return 1
+        fi
+
+        "$HOME/.fzf/install" --bin
+
+        export PATH="$HOME/.fzf/bin:$PATH"
+
+        echo "fzf: $(fzf --version)"
+    else
+        echo "fzf: version requirement satisfied"
+    fi
+
+
+    # --------------------------------------------------------
+    # Zoxide
+    # --------------------------------------------------------
+
+    if ! command -v zoxide >/dev/null; then
         echo "Installing zoxide..."
-        curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+
+        curl -sSfL \
+            https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |
+            sh
+    else
+        echo "zoxide: already installed"
     fi
 
-    # fastfetch
-    if ! command -v fastfetch > /dev/null; then
+
+    # --------------------------------------------------------
+    # Fastfetch
+    # --------------------------------------------------------
+
+    if ! command -v fastfetch >/dev/null; then
         echo "Installing fastfetch..."
-        sudo add-apt-repository ppa:zhangsongcui3371/fastfetch -y
+
+        sudo add-apt-repository \
+            ppa:zhangsongcui3371/fastfetch \
+            -y
+
         sudo apt update
-        sudo apt install fastfetch -y
+        sudo apt install -y fastfetch
+    else
+        echo "fastfetch: already installed"
     fi
 
-    # eza
-    if ! command -v eza > /dev/null; then
+
+    # --------------------------------------------------------
+    # Eza
+    # --------------------------------------------------------
+
+    if ! command -v eza >/dev/null; then
         echo "Installing eza..."
-        sudo apt install eza -y
+        sudo apt install -y eza
+    else
+        echo "eza: already installed"
     fi
 
+
+    # --------------------------------------------------------
     # Yazi
-    if ! command -v yazi > /dev/null; then
+    # --------------------------------------------------------
+
+    if ! command -v yazi >/dev/null; then
         echo "Installing yazi..."
+
+        sudo apt install -y file
 
         curl -fsSL \
             https://yazi-rs.github.io/builds/yazi-keyring.gpg |
-            sudo tee /usr/share/keyrings/yazi-keyring.gpg > /dev/null
+            sudo tee /usr/share/keyrings/yazi-keyring.gpg >/dev/null
 
-        echo 'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' |
-            sudo tee /etc/apt/sources.list.d/yazi.list > /dev/null
-
+        echo \
+            'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' |
+            sudo tee /etc/apt/sources.list.d/yazi.list >/dev/null
 
         sudo apt update
-        sudo apt install yazi -y
+        sudo apt install -y yazi
+    else
+        echo "yazi: already installed"
     fi
 
     echo "============================="
 }
 
+
+# ============================================================
+# Run installation
+# ============================================================
+
 install_dependencies
 
 for package in "${PACKAGES[@]}"; do
-    stow_package "$package"
+    stow_package "$package" || exit 1
 done
+
+echo "============================="
+echo "Dotfiles bootstrap completed"
+echo "============================="
