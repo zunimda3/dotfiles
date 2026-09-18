@@ -5,7 +5,7 @@ export PATH="$HOME/.fzf/bin:$PATH"
 eval "$(starship init zsh)"
 
 # Fastfetch
-alias ff="fastfetch --config arch"
+alias ff="clear && fastfetch --config arch"
 ff
 
 # Homebrew
@@ -15,7 +15,7 @@ fi
 
 export PATH="$HOME/.local/bin:$PATH"
 
-export USER="$(id -un)"
+export USER="naamir"
 export EMAIL="naamir@42kl.edu.my"
 
 # Yazi
