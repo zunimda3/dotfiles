@@ -285,6 +285,25 @@ return {
             },
         })
 
+        -- astro: astro-ls refuses to start without init_options.typescript.tsdk.
+        -- Prefer the project's own typescript, else fall back to the copy
+        -- bundled with mason's astro-language-server package.
+        vim.lsp.config("astro", {
+            before_init = function(_, config)
+                local ts = config.init_options.typescript
+                if ts.tsdk == nil or ts.tsdk == "" then
+                    -- lspconfig.util stats <root>/node_modules/typescript directly per
+                    -- ancestor. vim.fs.find descends instead, so it matches nested
+                    -- directories such as @babel/types/lib/builders/typescript.
+                    ts.tsdk = require("lspconfig.util").get_typescript_server_path(config.root_dir)
+                end
+                if ts.tsdk == "" then
+                    ts.tsdk = vim.fn.stdpath("data")
+                        .. "/mason/packages/astro-language-server/node_modules/typescript/lib"
+                end
+            end,
+        })
+
         -- clangd (C/C++) Setup
         vim.lsp.config("clangd", {
             filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },

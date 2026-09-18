@@ -38,7 +38,7 @@ return {
 				typescriptreact = { "biome-check" },
 				css = { "biome-check" },
 				html = { "prettier" },
-				svelte = { "prettier" },
+				astro = { "prettier" },
 				json = { "biome-check" },
 				yaml = { "prettier" },
 				graphql = { "prettier" },
@@ -58,15 +58,36 @@ return {
 
 		-- Configure individual formatters
 		conform.formatters.prettier = {
-			args = {
-				"--stdin-filepath",
-				"$FILENAME",
-				"--tab-width",
-				"4",
-				"--use-tabs",
-				"false",
-			},
+			args = function(self, ctx)
+				local args = {
+					"--stdin-filepath",
+					ctx.filename,
+					"--tab-width",
+					"4",
+					"--use-tabs",
+					"false",
+				}
+				-- Prettier 3 does not auto-load plugins; .astro needs the plugin from
+				-- the project's node_modules. Node resolves the bare name against the
+				-- process cwd, so the cwd below must be the dir holding node_modules.
+				if vim.bo[ctx.buf].filetype == "astro" then
+					table.insert(args, "--plugin")
+					table.insert(args, "prettier-plugin-astro")
+				end
+				return args
+			end,
+			-- Conform defaults cwd to Neovim's cwd, which breaks the bare plugin
+			-- name whenever Neovim was not started inside the project.
+			cwd = function(self, ctx)
+				local node_modules = vim.fs.find("node_modules", {
+					path = ctx.dirname,
+					upward = true,
+					limit = 1,
+				})[1]
+				return node_modules and vim.fs.dirname(node_modules) or nil
+			end,
 		}
+
 		conform.formatters.shfmt = {
 			prepend_args = { "-i", "4" },
 		}
