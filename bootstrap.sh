@@ -54,6 +54,10 @@ echo "============================="
 # ZSH
 # ============================================================
 
+# ============================================================
+# ZSH
+# ============================================================
+
 echo "============================="
 echo "Setting up ZSH"
 
@@ -64,7 +68,11 @@ if [ -z "$ZSH_PATH" ]; then
     exit 1
 fi
 
-CURRENT_SHELL="$(getent passwd "$USER" | cut -d: -f7)"
+CURRENT_USER="$(id -un)"
+CURRENT_SHELL="$(getent passwd "$CURRENT_USER" | cut -d: -f7)"
+
+echo "Current login shell: $CURRENT_SHELL"
+echo "Zsh path: $ZSH_PATH"
 
 if [ "$CURRENT_SHELL" != "$ZSH_PATH" ]; then
     echo "Changing login shell to zsh"
